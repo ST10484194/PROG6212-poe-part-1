@@ -1,4 +1,7 @@
 <Solution>
+  <Folder Name="/Data/">
+    <File Path="AppDbContext.cs" />
+  </Folder>
   <Folder Name="/Models/">
     <File Path="Category.cs" />
     <File Path="Enrolment.cs" />
