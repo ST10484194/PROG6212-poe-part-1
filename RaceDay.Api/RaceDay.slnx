@@ -1,5 +1,7 @@
 <Solution>
   <Folder Name="/Models/">
+    <File Path="Category.cs" />
+    <File Path="Event.cs" />
     <File Path="Role.cs" />
     <File Path="User.cs" />
   </Folder>
