@@ -1,3 +1,7 @@
 <Solution>
+  <Folder Name="/Models/">
+    <File Path="Role.cs" />
+    <File Path="User.cs" />
+  </Folder>
   <Project Path="RaceDay/RaceDay.csproj" />
 </Solution>
