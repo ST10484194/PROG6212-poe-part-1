@@ -138,7 +138,8 @@ The workflow `.github/workflows/part2-build-test.yml` builds the API and runs al
 
 **Latest build status:** ✅ Passing
 
-![Part 2 CI green build](docs/Part2_CI_GreenBuild.png)
+<img width="1427" height="242" alt="Screenshot 2026-10-16 175449" src="https://github.com/user-attachments/assets/944eda64-8b8d-466c-8a15-ad32df937d13" />
+
 
 ## Part 2 video walkthrough
 
