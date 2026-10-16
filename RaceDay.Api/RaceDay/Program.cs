@@ -8,7 +8,6 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 builder.Services.AddControllers();
 
-// Session management (keeps the logged-in user's ID and role between requests)
 builder.Services.AddDistributedMemoryCache();
 builder.Services.AddSession(options =>
 {

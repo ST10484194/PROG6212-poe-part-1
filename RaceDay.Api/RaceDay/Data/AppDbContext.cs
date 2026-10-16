@@ -22,6 +22,9 @@ public class AppDbContext : DbContext
             e.HasKey(x => x.RoleID);
             e.Property(x => x.RoleName).HasMaxLength(20).IsRequired();
             e.HasIndex(x => x.RoleName).IsUnique();
+            e.HasData(
+                new Role { RoleID = 1, RoleName = "Organiser" },
+                new Role { RoleID = 2, RoleName = "Participant" });
         });
 
         b.Entity<User>(e =>
@@ -93,7 +96,6 @@ public class AppDbContext : DbContext
             e.HasIndex(x => x.EnrolmentID).IsUnique();
         });
 
-        // Part 1 script uses VARCHAR, so make every string column non-unicode to match
         foreach (var p in b.Model.GetEntityTypes()
                      .SelectMany(t => t.GetProperties())
                      .Where(p => p.ClrType == typeof(string)))
