@@ -1,0 +1,30 @@
+name: Part 2 - Build and Test API
+
+on:
+  push:
+    branches: [ "**" ]
+  pull_request:
+    branches: [ "**" ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: |
+            8.0.x
+            9.0.x
+
+      - name: Restore dependencies
+        run: dotnet restore RaceDay.Api/RaceDay.Tests/RaceDay.Tests.csproj
+
+      - name: Build API and tests
+        run: dotnet build RaceDay.Api/RaceDay.Tests/RaceDay.Tests.csproj --configuration Release --no-restore
+
+      - name: Run unit tests
+        run: dotnet test RaceDay.Api/RaceDay.Tests/RaceDay.Tests.csproj --configuration Release --no-build --verbosity normal
