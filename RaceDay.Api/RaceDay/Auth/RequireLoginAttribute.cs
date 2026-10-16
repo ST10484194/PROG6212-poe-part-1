@@ -16,11 +16,11 @@ public static class SessionKeys
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method)]
 public class RequireLoginAttribute : Attribute, IAuthorizationFilter
 {
-    private readonly string? _role;
+    public string? Role { get; }
 
     public RequireLoginAttribute(string? role = null)
     {
-        _role = role;
+        Role = role;
     }
 
     public void OnAuthorization(AuthorizationFilterContext context)
@@ -33,9 +33,9 @@ public class RequireLoginAttribute : Attribute, IAuthorizationFilter
             return;
         }
 
-        if (_role != null && session.GetString(SessionKeys.Role) != _role)
+        if (Role != null && session.GetString(SessionKeys.Role) != Role)
         {
-            context.Result = new ObjectResult(new { message = $"This action is for {_role}s only." })
+            context.Result = new ObjectResult(new { message = $"This action is for {Role}s only." })
             {
                 StatusCode = StatusCodes.Status403Forbidden
             };
