@@ -143,4 +143,4 @@ The workflow `.github/workflows/part2-build-test.yml` builds the API and runs al
 
 ## Part 2 video walkthrough
 
-[Watch the Part 2 walkthrough on YouTube](PASTE_YOUR_PART_2_YOUTUBE_LINK_HERE)
+[Watch the Part 2 walkthrough on YouTube](https://youtu.be/qx-lpoOnieA?si=dUy0Xo8FlqETjnQf)
