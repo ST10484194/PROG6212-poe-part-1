@@ -1,0 +1,43 @@
+﻿@model CategoryFormViewModel
+@{
+    var isEdit = Model.CategoryID.HasValue;
+}
+
+<form asp-controller="ManageCategories" asp-action="@(isEdit ? "Edit" : "Create")" asp-route-id="@Model.CategoryID" method="post">
+    <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+    <input type="hidden" asp-for="EventID" />
+    <input type="hidden" asp-for="CategoryID" />
+
+    <div class="mb-3">
+        <label asp-for="CategoryName" class="form-label"></label>
+        <input asp-for="CategoryName" class="form-control" placeholder="e.g. Senior 21km or Under 20" />
+        <span asp-validation-for="CategoryName"></span>
+    </div>
+
+    <div class="row">
+        <div class="col-6 mb-3">
+            <label asp-for="MinAge" class="form-label"></label>
+            <input asp-for="MinAge" type="number" min="0" max="120" class="form-control" />
+            <span asp-validation-for="MinAge"></span>
+        </div>
+        <div class="col-6 mb-3">
+            <label asp-for="MaxAge" class="form-label"></label>
+            <input asp-for="MaxAge" type="number" min="0" max="120" class="form-control" />
+            <span asp-validation-for="MaxAge"></span>
+        </div>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="DistanceKm" class="form-label"></label>
+        <input asp-for="DistanceKm" type="number" step="0.01" min="0.01" class="form-control" />
+        <span asp-validation-for="DistanceKm"></span>
+    </div>
+
+    <div class="d-flex gap-2">
+        <button type="submit" class="btn btn-primary">@(isEdit ? "Save changes" : "Add category")</button>
+        @if (isEdit)
+        {
+            <a asp-controller="ManageCategories" asp-action="Index" asp-route-eventId="@Model.EventID" class="btn btn-outline-secondary">Cancel</a>
+        }
+    </div>
+</form>
