@@ -1,8 +1,16 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "RaceDay";
+    var status = (int)(ViewBag.ApiStatus ?? 0);
 }
 
 <div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+    <h1 class="display-4">RaceDay</h1>
+    @if (status == 200 || status == 401)
+    {
+        <p class="text-success">Connected to the RaceDay API (status @status).</p>
+    }
+    else
+    {
+        <p class="text-danger">Cannot reach the RaceDay API (status @status). Check that the API project is running.</p>
+    }
 </div>
