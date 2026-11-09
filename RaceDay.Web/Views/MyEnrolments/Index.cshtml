@@ -1,0 +1,35 @@
+﻿@model MyEnrolmentsViewModel
+@{
+    ViewData["Title"] = "My enrolments";
+}
+
+<h1 class="rd-title">My enrolments</h1>
+<p class="rd-subtitle">
+    Every event you have entered and where each entry stands:
+    <span class="rd-status rd-status-confirmed">Confirmed</span>
+    <span class="rd-status rd-status-pending">Pending</span>
+</p>
+
+@if (Model.Total == 0)
+{
+    <div class="card rd-card">
+        <div class="card-body rd-empty">
+            <p class="mb-3">You have not entered any events yet.</p>
+            <a asp-controller="Events" asp-action="Index" class="btn btn-primary">Browse events</a>
+        </div>
+    </div>
+}
+else
+{
+    @if (Model.Upcoming.Any())
+    {
+        <h2 class="h4">Upcoming</h2>
+        <partial name="_EnrolmentTable" model="Model.Upcoming" />
+    }
+
+    @if (Model.Past.Any())
+    {
+        <h2 class="h4 mt-4">Past events</h2>
+        <partial name="_EnrolmentTable" model="Model.Past" />
+    }
+}

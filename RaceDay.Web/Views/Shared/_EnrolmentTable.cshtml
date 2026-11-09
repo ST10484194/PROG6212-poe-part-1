@@ -1,0 +1,27 @@
+﻿@model List<EnrolmentDto>
+
+<div class="table-responsive">
+    <table class="table rd-table align-middle">
+        <thead>
+            <tr>
+                <th>Event</th>
+                <th>Date</th>
+                <th>Category</th>
+                <th>Entered on</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var e in Model)
+            {
+                <tr>
+                    <td class="fw-semibold"><a asp-controller="Events" asp-action="Details" asp-route-id="@e.EventID" class="text-decoration-none">@e.EventName</a></td>
+                    <td>@e.EventDate.ToString("ddd, d MMM yyyy")</td>
+                    <td>@e.CategoryName</td>
+                    <td>@e.EnrolmentDate.ToString("d MMM yyyy")</td>
+                    <td><span class="rd-status rd-status-@e.EnrolmentStatus.ToLower()">@e.EnrolmentStatus</span></td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
