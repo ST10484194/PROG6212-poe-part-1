@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using RaceDay.Web.Filters;
 using RaceDay.Web.Models;
 using RaceDay.Web.Services;
 
@@ -98,4 +99,68 @@ public class AccountController : AppController
 
     [HttpGet]
     public IActionResult AccessDenied() => View();
+
+    [HttpGet, RequireRole]
+    public async Task<IActionResult> Profile()
+    {
+        var result = await _api.GetAsync<UserDto>("api/users/me");
+        if (SessionExpired(result) is { } expired) return expired;
+
+        if (!result.Success || result.Data == null)
+        {
+            TempData["Error"] = result.Error ?? "We could not load your profile.";
+            return RedirectToAction("Index", "Home");
+        }
+
+        return View(ToProfile(result.Data));
+    }
+
+    [HttpPost, ValidateAntiForgeryToken, RequireRole]
+    public async Task<IActionResult> Profile(ProfileViewModel model)
+    {
+        // Email, role and picture are read from the API, never trusted from the form
+        var current = await _api.GetAsync<UserDto>("api/users/me");
+        if (SessionExpired(current) is { } expired) return expired;
+
+        if (!current.Success || current.Data == null)
+        {
+            TempData["Error"] = current.Error ?? "We could not load your profile.";
+            return RedirectToAction("Index", "Home");
+        }
+
+        model.Email = current.Data.Email;
+        model.Role = current.Data.Role;
+        model.ProfilePictureUrl = current.Data.ProfilePictureUrl;
+
+        if (!ModelState.IsValid) return View(model);
+
+        var result = await _api.PutAsync<UserDto>("api/users/me", new
+        {
+            fullName = model.FullName,
+            contactNumber = string.IsNullOrWhiteSpace(model.ContactNumber) ? null : model.ContactNumber,
+            profilePictureUrl = model.ProfilePictureUrl
+        });
+        if (SessionExpired(result) is { } expiredUpdate) return expiredUpdate;
+
+        if (!result.Success || result.Data == null)
+        {
+            ModelState.AddModelError(string.Empty, result.Error ?? "We could not update your profile. Please try again.");
+            return View(model);
+        }
+
+        HttpContext.Session.SetString(SessionKeys.FullName, result.Data.FullName);
+        HttpContext.Session.SetString(SessionKeys.ProfilePictureUrl, result.Data.ProfilePictureUrl ?? string.Empty);
+
+        TempData["Success"] = "Your profile has been updated.";
+        return RedirectToAction(nameof(Profile));
+    }
+
+    private static ProfileViewModel ToProfile(UserDto u) => new()
+    {
+        FullName = u.FullName,
+        Email = u.Email,
+        Role = u.Role,
+        ContactNumber = u.ContactNumber,
+        ProfilePictureUrl = u.ProfilePictureUrl
+    };
 }
