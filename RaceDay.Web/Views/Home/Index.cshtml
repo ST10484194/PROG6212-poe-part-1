@@ -1,16 +1,86 @@
-﻿@{
-    ViewData["Title"] = "RaceDay";
-    var status = (int)(ViewBag.ApiStatus ?? 0);
+﻿@using RaceDay.Web.Services
+@{
+    ViewData["Title"] = "Home";
+    var role = Context.Session.GetString(SessionKeys.Role);
+    var fullName = Context.Session.GetString(SessionKeys.FullName);
 }
 
-<div class="text-center">
-    <h1 class="display-4">RaceDay</h1>
-    @if (status == 200 || status == 401)
-    {
-        <p class="text-success">Connected to the RaceDay API (status @status).</p>
-    }
-    else
-    {
-        <p class="text-danger">Cannot reach the RaceDay API (status @status). Check that the API project is running.</p>
-    }
+@section Hero {
+    <section class="rd-hero">
+        <div class="container">
+            <p class="rd-eyebrow mb-2">South Africa's running, walking and cycling community</p>
+            <h1>Your race.<br /><span>Your day.</span></h1>
+            <p class="lead mt-3 mb-4">
+                Find upcoming road runs, fun walks and cycle tours, enter in a few clicks and keep every
+                finish time in one place.
+            </p>
+            @if (role == "Organiser")
+            {
+                <p class="mb-3">Welcome back, @fullName.</p>
+                <a asp-controller="Dashboard" asp-action="Index" class="btn btn-primary btn-lg">Go to my dashboard</a>
+            }
+            else if (role == "Participant")
+            {
+                <p class="mb-3">Welcome back, @fullName.</p>
+                <a asp-controller="Events" asp-action="Index" class="btn btn-primary btn-lg">Browse events</a>
+            }
+            else
+            {
+                <a asp-controller="Account" asp-action="Register" class="btn btn-primary btn-lg me-2">Join RaceDay</a>
+                <a asp-controller="Account" asp-action="Login" class="btn btn-outline-light btn-lg">Log in</a>
+            }
+        </div>
+    </section>
+}
+
+<div class="row g-4">
+    <div class="col-md-4">
+        <div class="card rd-card h-100">
+            <div class="card-body">
+                <h3 class="h4">Find your event</h3>
+                <p class="mb-0">Browse upcoming runs, walks and cycle events and filter by type or location.</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card rd-card h-100">
+            <div class="card-body">
+                <h3 class="h4">Enter in seconds</h3>
+                <p class="mb-0">Pick your category and your entry is recorded immediately.</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card rd-card h-100">
+            <div class="card-body">
+                <h3 class="h4">Track every finish</h3>
+                <p class="mb-0">See your finish times and positions from every event you have entered.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4 mt-1">
+    <div class="col-md-6">
+        <div class="card rd-card h-100">
+            <div class="card-body">
+                <h3 class="h4">For Participants</h3>
+                <p class="mb-0">
+                    Create an account, browse events, enter by choosing a category, follow your
+                    enrolment status and build your personal race history.
+                </p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card rd-card h-100">
+            <div class="card-body">
+                <h3 class="h4">For Organisers</h3>
+                <p class="mb-0">
+                    Create and manage events, define categories, see who has entered and
+                    capture finish times and positions after the race.
+                </p>
+            </div>
+        </div>
+    </div>
 </div>
