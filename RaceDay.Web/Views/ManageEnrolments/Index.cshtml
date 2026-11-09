@@ -1,0 +1,85 @@
+﻿@model ManageEnrolmentsViewModel
+@{
+    ViewData["Title"] = "Enrolments";
+}
+
+<h1 class="rd-title">Enrolments</h1>
+<p class="rd-subtitle">See who has entered your event, which category they chose and confirm their entry.</p>
+
+@if (!Model.Selector.Events.Any())
+{
+    <div class="card rd-card">
+        <div class="card-body rd-empty">
+            <p class="mb-3">Create an event first. Participants can then enter it.</p>
+            <a asp-controller="ManageEvents" asp-action="Create" class="btn btn-primary">Create an event</a>
+        </div>
+    </div>
+}
+else
+{
+    <partial name="_EventSelector" model="Model.Selector" />
+
+    @if (Model.Event != null)
+    {
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-2">
+            <h2 class="h4 mb-0">@Model.Event.Name</h2>
+            <div>
+                <span class="rd-status rd-status-confirmed">@Model.Confirmed Confirmed</span>
+                <span class="rd-status rd-status-pending ms-1">@Model.Pending Pending</span>
+            </div>
+        </div>
+
+        @if (!Model.Enrolments.Any())
+        {
+            <div class="card rd-card">
+                <div class="card-body rd-empty">
+                    <p class="mb-0">No participants have entered this event yet.</p>
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table rd-table align-middle">
+                    <thead>
+                        <tr>
+                            <th>Participant</th>
+                            <th>Category</th>
+                            <th>Entered</th>
+                            <th>Status</th>
+                            <th class="text-end">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var e in Model.Enrolments)
+                        {
+                            <tr>
+                                <td>
+                                    <div class="fw-semibold">@e.ParticipantName</div>
+                                    <small class="text-muted">@e.ParticipantEmail</small>
+                                </td>
+                                <td>@e.CategoryName</td>
+                                <td>@e.EnrolmentDate.ToString("d MMM yyyy")</td>
+                                <td><span class="rd-status rd-status-@e.EnrolmentStatus.ToLower()">@e.EnrolmentStatus</span></td>
+                                <td class="text-end">
+                                    <form asp-action="SetStatus" asp-route-id="@e.EnrolmentID" asp-route-eventId="@Model.Event.EventID" method="post" class="d-inline">
+                                        @if (e.EnrolmentStatus == "Pending")
+                                        {
+                                            <input type="hidden" name="status" value="Confirmed" />
+                                            <button type="submit" class="btn btn-sm btn-primary">Confirm</button>
+                                        }
+                                        else
+                                        {
+                                            <input type="hidden" name="status" value="Pending" />
+                                            <button type="submit" class="btn btn-sm btn-outline-secondary">Set to pending</button>
+                                        }
+                                    </form>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    }
+}
