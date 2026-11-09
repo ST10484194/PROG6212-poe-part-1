@@ -1,10 +1,14 @@
 using Microsoft.EntityFrameworkCore;
 using RaceDay.Data;
+using RaceDay.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+// Azure Blob Storage for event banners and profile pictures
+builder.Services.AddSingleton<IImageStorage, BlobImageStorage>();
 
 builder.Services.AddControllers();
 
