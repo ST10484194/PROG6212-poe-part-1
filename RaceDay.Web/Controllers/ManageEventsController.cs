@@ -35,18 +35,21 @@ public class ManageEventsController : AppController
     [HttpPost, ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(EventFormViewModel model)
     {
+        ValidateBanner(model);
         if (!ModelState.IsValid) return View("Form", model);
 
         var result = await _api.PostAsync<EventDto>("api/events", ToRequest(model));
         if (SessionExpired(result) is { } expired) return expired;
 
-        if (!result.Success)
+        if (!result.Success || result.Data == null)
         {
             ModelState.AddModelError(string.Empty, result.Error ?? "We could not create the event. Please try again.");
             return View("Form", model);
         }
 
         TempData["Success"] = $"\"{model.Name}\" has been created. You can now add categories to it.";
+        await UploadBannerIfChosen(result.Data.EventID, model);
+
         return RedirectToAction(nameof(Index));
     }
 
@@ -86,6 +89,8 @@ public class ManageEventsController : AppController
     public async Task<IActionResult> Edit(int id, EventFormViewModel model)
     {
         model.EventID = id;
+
+        ValidateBanner(model);
         if (!ModelState.IsValid) return View("Form", model);
 
         var result = await _api.PutAsync<EventDto>($"api/events/{id}", ToRequest(model));
@@ -104,6 +109,8 @@ public class ManageEventsController : AppController
         }
 
         TempData["Success"] = $"\"{model.Name}\" has been updated.";
+        await UploadBannerIfChosen(id, model);
+
         return RedirectToAction(nameof(Index));
     }
 
@@ -119,6 +126,27 @@ public class ManageEventsController : AppController
             TempData["Error"] = result.Error ?? "We could not delete the event. Please try again.";
 
         return RedirectToAction(nameof(Index));
+    }
+
+    private static bool HasFile(IFormFile? file) => file != null && file.Length > 0;
+
+    private void ValidateBanner(EventFormViewModel model)
+    {
+        if (!HasFile(model.BannerImage)) return;
+
+        var error = ImageValidator.Validate(model.BannerImage);
+        if (error != null)
+            ModelState.AddModelError(nameof(model.BannerImage), error);
+    }
+
+    /// <summary>The event is already saved at this point, so a failed upload only adds a warning.</summary>
+    private async Task UploadBannerIfChosen(int eventId, EventFormViewModel model)
+    {
+        if (!HasFile(model.BannerImage)) return;
+
+        var upload = await _api.PostFileAsync<BannerUploadDto>($"api/events/{eventId}/banner", model.BannerImage!);
+        if (!upload.Success)
+            TempData["Error"] = $"The event was saved, but the banner could not be uploaded. {upload.Error}";
     }
 
     private static object ToRequest(EventFormViewModel m) => new

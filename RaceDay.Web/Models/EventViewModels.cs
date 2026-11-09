@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Http;
 
 namespace RaceDay.Web.Models;
 
@@ -30,7 +31,12 @@ public class EventFormViewModel
     [Display(Name = "Event type")]
     public string EventType { get; set; } = "Run";
 
+    /// <summary>The banner already stored for this event (shown as a preview when editing).</summary>
     public string? BannerImageUrl { get; set; }
+
+    /// <summary>A newly chosen banner image. Optional.</summary>
+    [Display(Name = "Banner image")]
+    public IFormFile? BannerImage { get; set; }
 }
 
 public class DashboardViewModel
