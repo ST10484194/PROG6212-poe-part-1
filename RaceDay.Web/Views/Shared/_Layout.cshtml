@@ -3,6 +3,8 @@
     var role = Context.Session.GetString(SessionKeys.Role);
     var fullName = Context.Session.GetString(SessionKeys.FullName);
     var controller = ViewContext.RouteData.Values["controller"]?.ToString() ?? "";
+    var successMessage = TempData["Success"] as string;
+    var errorMessage = TempData["Error"] as string;
     string Active(params string[] names) => names.Contains(controller, StringComparer.OrdinalIgnoreCase) ? "active" : "";
 }
 <!DOCTYPE html>
@@ -84,10 +86,18 @@
     @RenderSection("Hero", required: false)
 
     <div class="container rd-page">
-        @if (TempData["Success"] is string success)
+        @if (!string.IsNullOrEmpty(successMessage))
         {
             <div class="alert alert-success alert-dismissible fade show" role="alert">
-                @success
+                @successMessage
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+
+        @if (!string.IsNullOrEmpty(errorMessage))
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                @errorMessage
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
         }
@@ -96,13 +106,6 @@
             @RenderBody()
         </main>
     </div>
-            </div>
-        }
-        @if (TempData["Error"] is string error)
-        {
-            <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                @error
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
 
     <footer class="rd-footer">
         <div class="container">

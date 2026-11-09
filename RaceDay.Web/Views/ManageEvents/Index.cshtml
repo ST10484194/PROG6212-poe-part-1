@@ -1,0 +1,74 @@
+﻿@model List<EventDto>
+@{
+    ViewData["Title"] = "My events";
+    var now = DateTime.Now;
+}
+
+<div class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-3">
+    <div>
+        <h1 class="rd-title">My events</h1>
+        <p class="rd-subtitle mb-0">Create and manage your events, categories, enrolments and results.</p>
+    </div>
+    <a asp-action="Create" class="btn btn-primary">+ Create event</a>
+</div>
+
+@if (!Model.Any())
+{
+    <div class="card rd-card">
+        <div class="card-body rd-empty">
+            <p class="mb-3">You have not created any events yet.</p>
+            <a asp-action="Create" class="btn btn-primary">Create your first event</a>
+        </div>
+    </div>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table rd-table align-middle">
+            <thead>
+                <tr>
+                    <th>Event</th>
+                    <th>Date</th>
+                    <th>Location</th>
+                    <th>Distance</th>
+                    <th class="text-center">Enrolments</th>
+                    <th class="text-end">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var ev in Model.OrderByDescending(e => e.EventDate))
+                {
+                    <tr>
+                        <td>
+                            <div class="fw-semibold">@ev.Name</div>
+                            <span class="rd-type rd-type-@ev.EventType.ToLower()">@ev.EventType</span>
+                            @if (ev.EventDate < now)
+                            {
+                                <span class="badge text-bg-secondary ms-1">Completed</span>
+                            }
+                        </td>
+                        <td>
+                            @ev.EventDate.ToString("ddd, d MMM yyyy")<br />
+                            <small class="text-muted">@ev.EventDate.ToString("HH:mm")</small>
+                        </td>
+                        <td>@ev.Location</td>
+                        <td>@ev.DistanceKm.ToString("0.##") km</td>
+                        <td class="text-center fw-semibold">@ev.EnrolmentCount</td>
+                        <td>
+                            <div class="d-flex flex-wrap gap-1 justify-content-end">
+                                <a asp-action="Edit" asp-route-id="@ev.EventID" class="btn btn-sm btn-outline-primary">Edit</a>
+                                <a asp-controller="ManageCategories" asp-action="Index" asp-route-eventId="@ev.EventID" class="btn btn-sm btn-outline-secondary">Categories</a>
+                                <a asp-controller="ManageEnrolments" asp-action="Index" asp-route-eventId="@ev.EventID" class="btn btn-sm btn-outline-secondary">Enrolments</a>
+                                <a asp-controller="ManageResults" asp-action="Index" asp-route-eventId="@ev.EventID" class="btn btn-sm btn-outline-secondary">Results</a>
+                                <form asp-action="Delete" asp-route-id="@ev.EventID" method="post" class="d-inline"
+                                      onsubmit="return confirm('Delete this event? This cannot be undone.');">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
