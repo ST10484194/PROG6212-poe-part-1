@@ -1,4 +1,9 @@
+using System.Globalization;
 using RaceDay.Web.Services;
+
+// Always use "." for decimals, so form values parse the same on every machine and inside Docker
+CultureInfo.DefaultThreadCurrentCulture = CultureInfo.InvariantCulture;
+CultureInfo.DefaultThreadCurrentUICulture = CultureInfo.InvariantCulture;
 
 var builder = WebApplication.CreateBuilder(args);
 
