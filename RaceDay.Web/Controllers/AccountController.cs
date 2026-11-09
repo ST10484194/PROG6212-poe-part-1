@@ -99,9 +99,3 @@ public class AccountController : AppController
     [HttpGet]
     public IActionResult AccessDenied() => View();
 }
-namespace RaceDay.Web.Controllers
-{
-    public class AccountController
-    {
-    }
-}
