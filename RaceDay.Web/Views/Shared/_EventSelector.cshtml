@@ -1,0 +1,19 @@
+﻿@model EventSelectorViewModel
+
+@if (Model.Events.Any())
+{
+    <form asp-controller="@Model.Controller" asp-action="Index" method="get" class="card rd-card mb-4">
+        <div class="card-body d-flex flex-wrap align-items-end gap-2">
+            <div class="flex-grow-1">
+                <label for="eventId" class="form-label mb-1">Event</label>
+                <select id="eventId" name="eventId" class="form-select">
+                    @foreach (var ev in Model.Events.OrderByDescending(e => e.EventDate))
+                    {
+                        <option value="@ev.EventID" selected="@(ev.EventID == Model.SelectedEventId)">@ev.Name (@ev.EventDate.ToString("d MMM yyyy"))</option>
+                    }
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary">Open</button>
+        </div>
+    </form>
+}
