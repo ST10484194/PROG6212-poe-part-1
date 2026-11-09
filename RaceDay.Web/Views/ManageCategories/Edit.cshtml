@@ -1,0 +1,21 @@
+﻿@model CategoryFormViewModel
+@{
+    ViewData["Title"] = "Edit category";
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-6">
+        <h1 class="rd-title">Edit category</h1>
+        <p class="rd-subtitle">Update the details of this category.</p>
+
+        <div class="card rd-card">
+            <div class="card-body p-4">
+                <partial name="_CategoryForm" model="Model" />
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

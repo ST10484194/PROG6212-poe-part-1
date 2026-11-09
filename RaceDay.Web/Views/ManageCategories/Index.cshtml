@@ -1,0 +1,85 @@
+﻿@using RaceDay.Web.Services
+@model ManageCategoriesViewModel
+@{
+    ViewData["Title"] = "Categories";
+}
+
+<h1 class="rd-title">Categories</h1>
+<p class="rd-subtitle">Define the age or distance categories participants choose from when they enter your event.</p>
+
+@if (!Model.Selector.Events.Any())
+{
+    <div class="card rd-card">
+        <div class="card-body rd-empty">
+            <p class="mb-3">Create an event first, then you can add categories to it.</p>
+            <a asp-controller="ManageEvents" asp-action="Create" class="btn btn-primary">Create an event</a>
+        </div>
+    </div>
+}
+else
+{
+    <partial name="_EventSelector" model="Model.Selector" />
+
+    @if (Model.Event != null)
+    {
+        <div class="row g-4">
+            <div class="col-lg-7">
+                <h2 class="h4">Categories for @Model.Event.Name</h2>
+
+                @if (!Model.Categories.Any())
+                {
+                    <div class="card rd-card">
+                        <div class="card-body rd-empty">
+                            <p class="mb-0">This event has no categories yet. Add the first one using the form.</p>
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <div class="table-responsive">
+                        <table class="table rd-table align-middle">
+                            <thead>
+                                <tr>
+                                    <th>Category</th>
+                                    <th>Ages</th>
+                                    <th>Distance</th>
+                                    <th class="text-end">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var c in Model.Categories)
+                                {
+                                    <tr>
+                                        <td class="fw-semibold">@c.CategoryName</td>
+                                        <td>@RaceFormat.AgeRange(c.MinAge, c.MaxAge)</td>
+                                        <td>@RaceFormat.Distance(c.DistanceKm)</td>
+                                        <td class="text-end text-nowrap">
+                                            <a asp-action="Edit" asp-route-id="@c.CategoryID" asp-route-eventId="@Model.Event.EventID" class="btn btn-sm btn-outline-primary">Edit</a>
+                                            <form asp-action="Delete" asp-route-id="@c.CategoryID" asp-route-eventId="@Model.Event.EventID" method="post" class="d-inline"
+                                                  onsubmit="return confirm('Delete this category?');">
+                                                <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+            </div>
+
+            <div class="col-lg-5">
+                <div class="card rd-card">
+                    <div class="card-body p-4">
+                        <h2 class="h4">Add a category</h2>
+                        <partial name="_CategoryForm" model="Model.NewCategory" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+}
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
