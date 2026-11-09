@@ -1,0 +1,91 @@
+﻿@using RaceDay.Web.Services
+@model ManageResultsViewModel
+@{
+    ViewData["Title"] = "Results";
+}
+
+<h1 class="rd-title">Results</h1>
+<p class="rd-subtitle">Capture finish times and finishing positions. Results are published to participants as soon as you save them.</p>
+
+@if (!Model.Selector.Events.Any())
+{
+    <div class="card rd-card">
+        <div class="card-body rd-empty">
+            <p class="mb-3">Create an event first. Results can be captured once participants have entered.</p>
+            <a asp-controller="ManageEvents" asp-action="Create" class="btn btn-primary">Create an event</a>
+        </div>
+    </div>
+}
+else
+{
+    <partial name="_EventSelector" model="Model.Selector" />
+
+    @if (Model.Event != null)
+    {
+        @if (Model.Event.EventDate > DateTime.Now)
+        {
+            <div class="alert alert-info">
+                This event has not taken place yet (@Model.Event.EventDate.ToString("d MMM yyyy, HH:mm")).
+                Results are normally captured after the event has finished.
+            </div>
+        }
+
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-2">
+            <h2 class="h4 mb-0">@Model.Event.Name</h2>
+            <span class="text-muted">@Model.Captured of @Model.Rows.Count results captured</span>
+        </div>
+
+        @if (!Model.Rows.Any())
+        {
+            <div class="card rd-card">
+                <div class="card-body rd-empty">
+                    <p class="mb-0">No participants have entered this event yet, so there is nothing to capture.</p>
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table rd-table align-middle">
+                    <thead>
+                        <tr>
+                            <th>Participant</th>
+                            <th>Category</th>
+                            <th>Status</th>
+                            <th>Result</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var row in Model.Rows)
+                        {
+                            <tr>
+                                <td class="fw-semibold">@row.Enrolment.ParticipantName</td>
+                                <td>@row.Enrolment.CategoryName</td>
+                                <td><span class="rd-status rd-status-@row.Enrolment.EnrolmentStatus.ToLower()">@row.Enrolment.EnrolmentStatus</span></td>
+                                <td>
+                                    @if (row.Result != null)
+                                    {
+                                        <span class="fw-semibold">@RaceFormat.Time(row.Result.FinishTime)</span>
+                                        <span class="text-muted">&middot; @RaceFormat.Ordinal(row.Result.FinishingPosition) of @row.Result.TotalFinishers @(row.Result.TotalFinishers == 1 ? "finisher" : "finishers")</span>
+                                    }
+                                    else
+                                    {
+                                        <form asp-action="Capture" method="post" class="d-flex flex-wrap gap-2 align-items-center">
+                                            <input type="hidden" name="EventID" value="@Model.Event.EventID" />
+                                            <input type="hidden" name="EnrolmentID" value="@row.Enrolment.EnrolmentID" />
+                                            <input type="text" name="FinishTime" class="form-control form-control-sm" style="width: 7.5rem;"
+                                                   placeholder="hh:mm:ss" maxlength="8" aria-label="Finish time" />
+                                            <input type="number" name="FinishingPosition" min="1" class="form-control form-control-sm" style="width: 6.5rem;"
+                                                   placeholder="Position" aria-label="Finishing position" />
+                                            <button type="submit" class="btn btn-sm btn-primary">Save</button>
+                                        </form>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    }
+}
