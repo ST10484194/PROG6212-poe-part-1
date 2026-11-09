@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
 
@@ -42,23 +43,37 @@ public class ApiClient
     private ISession Session => _accessor.HttpContext!.Session;
 
     public Task<ApiResult<T>> GetAsync<T>(string url) => SendAsync<T>(HttpMethod.Get, url, null);
-    public Task<ApiResult<T>> PostAsync<T>(string url, object? body = null) => SendAsync<T>(HttpMethod.Post, url, body);
-    public Task<ApiResult<T>> PutAsync<T>(string url, object? body = null) => SendAsync<T>(HttpMethod.Put, url, body);
+    public Task<ApiResult<T>> PostAsync<T>(string url, object? body = null) => SendAsync<T>(HttpMethod.Post, url, ToJson(body));
+    public Task<ApiResult<T>> PutAsync<T>(string url, object? body = null) => SendAsync<T>(HttpMethod.Put, url, ToJson(body));
     public Task<ApiResult<object>> DeleteAsync(string url) => SendAsync<object>(HttpMethod.Delete, url, null);
+
+    /// <summary>Sends an uploaded file to the API as multipart/form-data.</summary>
+    public Task<ApiResult<T>> PostFileAsync<T>(string url, IFormFile file, string fieldName = "file")
+    {
+        var content = new MultipartFormDataContent();
+
+        var fileContent = new StreamContent(file.OpenReadStream());
+        fileContent.Headers.ContentType = MediaTypeHeaderValue.TryParse(file.ContentType, out var mediaType)
+            ? mediaType
+            : new MediaTypeHeaderValue("application/octet-stream");
+
+        content.Add(fileContent, fieldName, Path.GetFileName(file.FileName));
+        return SendAsync<T>(HttpMethod.Post, url, content);
+    }
 
     /// <summary>Forgets the stored API session (used on logout).</summary>
     public void ForgetSession() => Session.Remove(SessionCookieKey);
 
-    private async Task<ApiResult<T>> SendAsync<T>(HttpMethod method, string url, object? body)
+    private static StringContent? ToJson(object? body) =>
+        body == null ? null : new StringContent(JsonSerializer.Serialize(body), Encoding.UTF8, "application/json");
+
+    private async Task<ApiResult<T>> SendAsync<T>(HttpMethod method, string url, HttpContent? content)
     {
-        using var request = new HttpRequestMessage(method, url);
+        using var request = new HttpRequestMessage(method, url) { Content = content };
 
         var cookie = Session.GetString(SessionCookieKey);
         if (!string.IsNullOrEmpty(cookie))
             request.Headers.Add("Cookie", cookie);
-
-        if (body != null)
-            request.Content = new StringContent(JsonSerializer.Serialize(body), Encoding.UTF8, "application/json");
 
         HttpResponseMessage response;
         try
@@ -77,14 +92,14 @@ public class ApiClient
         using (response)
         {
             CaptureSessionCookie(response);
-            var content = await response.Content.ReadAsStringAsync();
+            var body = await response.Content.ReadAsStringAsync();
 
             if (response.IsSuccessStatusCode)
             {
                 T? data = default;
-                if (!string.IsNullOrWhiteSpace(content) && typeof(T) != typeof(object))
+                if (!string.IsNullOrWhiteSpace(body) && typeof(T) != typeof(object))
                 {
-                    try { data = JsonSerializer.Deserialize<T>(content, JsonOptions); }
+                    try { data = JsonSerializer.Deserialize<T>(body, JsonOptions); }
                     catch (JsonException)
                     {
                         return new ApiResult<T>
@@ -100,7 +115,7 @@ public class ApiClient
             return new ApiResult<T>
             {
                 StatusCode = (int)response.StatusCode,
-                Error = ExtractError(content, response.StatusCode)
+                Error = ExtractError(body, response.StatusCode)
             };
         }
     }
