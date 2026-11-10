@@ -26,7 +26,17 @@
                     </div>
                 </div>
 
-                <form asp-action="Profile" method="post">
+                <form asp-controller="ProfilePicture" asp-action="Upload" method="post" enctype="multipart/form-data" class="border rounded p-3 mb-4">
+                    <label for="picture" class="form-label fw-semibold">Profile picture</label>
+                    <div class="d-flex flex-wrap gap-2">
+                        <input id="picture" name="picture" type="file" class="form-control" style="max-width: 24rem;"
+                               accept="image/jpeg,image/png,image/webp" required />
+                        <button type="submit" class="btn btn-outline-primary">Upload picture</button>
+                    </div>
+                    <div class="form-text">JPG, PNG or WEBP, up to 5 MB.</div>
+                </form>
+
+                <form asp-controller="Account" asp-action="Profile" method="post">
                     <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
 
                     <div class="mb-3">
